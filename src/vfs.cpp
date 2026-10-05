@@ -185,3 +185,41 @@ const QMap<QString, VfsNode> &Vfs::nodes() const
 {
     return nodes_;
 }
+
+QString Vfs::setPermissions(const QString &path, unsigned int permissions)
+{
+    auto node = nodes_.find(path);
+    if (node == nodes_.end()) {
+        return QStringLiteral("путь «%1» не найден в VFS.").arg(path);
+    }
+    node->permissions = permissions & 07777;
+    return {};
+}
+
+QString Vfs::remove(const QString &path, bool recursive, bool emptyDirectories)
+{
+    const auto node = nodes_.constFind(path);
+    if (node == nodes_.cend()) {
+        return QStringLiteral("путь «%1» не найден в VFS.").arg(path);
+    }
+    if (path == QStringLiteral("/")) {
+        return QStringLiteral("нельзя удалить корень VFS.");
+    }
+    if (node->directory && !recursive && !emptyDirectories) {
+        return QStringLiteral("«%1» — каталог; используйте -r или -d.").arg(path);
+    }
+    const QString prefix = path + u'/';
+    QStringList removed{path};
+    for (auto it = nodes_.cbegin(); it != nodes_.cend(); ++it) {
+        if (it.key().startsWith(prefix)) {
+            if (!recursive) {
+                return QStringLiteral("каталог «%1» не пуст.").arg(path);
+            }
+            removed.append(it.key());
+        }
+    }
+    for (const QString &key : removed) {
+        nodes_.remove(key);
+    }
+    return {};
+}

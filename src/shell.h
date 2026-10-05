@@ -31,6 +31,8 @@ private:
     CommandResult uniq(const QStringList &arguments) const;
     CommandResult tail(const QStringList &arguments) const;
     CommandResult history(const QStringList &arguments) const;
+    CommandResult chmod(const QStringList &arguments);
+    CommandResult remove(const QStringList &arguments);
     QString resolvePath(const QString &path) const;
     QString readTextFile(const QString &path, QString &text) const;
 };

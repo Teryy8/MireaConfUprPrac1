@@ -15,6 +15,8 @@ public:
     Vfs();
     QString load(const QString &path);
     QString reset();
+    QString setPermissions(const QString &path, unsigned int permissions);
+    QString remove(const QString &path, bool recursive, bool emptyDirectories);
     QString summary() const;
     const QMap<QString, VfsNode> &nodes() const;
 

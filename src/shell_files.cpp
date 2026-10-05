@@ -15,6 +15,15 @@ QString permissionString(const VfsNode &node)
     for (int bit = 8; bit >= 0; --bit) {
         result += (node.permissions & (1u << bit)) ? symbols[(8 - bit) % 3] : u'-';
     }
+    if (node.permissions & 04000) {
+        result[3] = node.permissions & 0100 ? u's' : u'S';
+    }
+    if (node.permissions & 02000) {
+        result[6] = node.permissions & 0010 ? u's' : u'S';
+    }
+    if (node.permissions & 01000) {
+        result[9] = node.permissions & 0001 ? u't' : u'T';
+    }
     return result;
 }
 

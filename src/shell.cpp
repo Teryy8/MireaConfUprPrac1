@@ -82,6 +82,12 @@ CommandResult Shell::executeWords(const QStringList &words)
     if (command == QStringLiteral("history")) {
         return history(arguments);
     }
+    if (command == QStringLiteral("chmod")) {
+        return chmod(arguments);
+    }
+    if (command == QStringLiteral("rm")) {
+        return remove(arguments);
+    }
     return {QStringLiteral("Ошибка: неизвестная команда «%1».").arg(command), true};
 }
 

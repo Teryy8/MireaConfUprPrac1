@@ -1,0 +1,56 @@
+ls -al /
+cd /docs
+chmod 600 lines.txt
+ls -l lines.txt
+chmod u+x lines.txt
+ls -l lines.txt
+chmod go-r lines.txt
+chmod a=r lines.txt
+ls -l lines.txt
+chmod u=rwx,g=rx,o= lines.txt
+ls -l lines.txt
+chmod u+x-w lines.txt
+chmod g=u,o=g lines.txt
+ls -l lines.txt
+chmod -w lines.txt
+chmod +x lines.txt
+chmod a= lines.txt
+ls -l lines.txt
+chmod 0644 lines.txt
+chmod -Rv a+rwX projects
+ls -l projects
+ls -l projects/demo
+chmod -v 4755 lines.txt
+ls -l lines.txt
+chmod u-x lines.txt
+ls -l lines.txt
+chmod u-s,g+s lines.txt
+ls -l lines.txt
+chmod -v 1777 /emptydir
+ls -l /
+chmod o-t /emptydir
+chmod 640 case.txt empty.txt
+ls -l case.txt empty.txt
+cd /
+chmod -- 600 -- -file
+ls -l -- -file
+chmod 700 "/my folder/note.txt"
+ls -l "/my folder/note.txt"
+rm -v "/my folder/note.txt"
+rm -dv "/my folder"
+rm -d /emptydir
+rm -v -- -file
+rm -rv -- -directory
+rm /.hidden /bytes.bin
+cd /docs
+rm -v empty.txt lines.txt
+ls -l
+rm -R projects
+ls -al
+cd /
+rm -rf /docs
+rm -f /missing
+rm -f
+ls -al /
+history 8
+exit

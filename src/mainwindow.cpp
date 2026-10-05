@@ -31,7 +31,7 @@ MainWindow::MainWindow(const Configuration &configuration, QWidget *parent)
     auto *layout = new QVBoxLayout(central);
     layout->setContentsMargins(16, 16, 16, 16);
     layout->setSpacing(12);
-    auto *heading = new QLabel(QStringLiteral("Вариант 17 · Этап 4 · Команды"), central);
+    auto *heading = new QLabel(QStringLiteral("Вариант 17 · Этап 5 · Изменение VFS"), central);
     layout->addWidget(heading);
 
     transcript_->setObjectName(QStringLiteral("transcript"));
@@ -41,7 +41,7 @@ MainWindow::MainWindow(const Configuration &configuration, QWidget *parent)
     transcript_->setLineWrapMode(QPlainTextEdit::WidgetWidth);
     transcript_->appendPlainText(configuration_.debugText());
     transcript_->appendPlainText(QStringLiteral("Эмулятор оболочки. VFS: %1").arg(vfsName_));
-    transcript_->appendPlainText(QStringLiteral("Команды: ls, cd, uniq, history, tail, vfs-init, exit."));
+    transcript_->appendPlainText(QStringLiteral("Команды: ls, cd, uniq, history, tail, chmod, rm, vfs-init, exit."));
     transcript_->appendPlainText(QStringLiteral("Переменные ОС: $HOME, ${HOME}. Ввод команды — Enter."));
     layout->addWidget(transcript_, 1);
 

@@ -66,6 +66,16 @@ void GuiTest::interactiveDialog()
     input->setText(QStringLiteral("history 2"));
     QTest::keyClick(input, Qt::Key_Return);
     QVERIFY(output->toPlainText().contains(QStringLiteral("  tail -n 1 lines.txt")));
+    input->setText(QStringLiteral("chmod 600 lines.txt"));
+    QTest::keyClick(input, Qt::Key_Return);
+    input->setText(QStringLiteral("ls -l lines.txt"));
+    QTest::keyClick(input, Qt::Key_Return);
+    QVERIFY(output->toPlainText().contains(QStringLiteral("-rw------- 39 lines.txt")));
+    input->setText(QStringLiteral("rm lines.txt"));
+    QTest::mouseClick(button, Qt::LeftButton);
+    input->setText(QStringLiteral("tail lines.txt"));
+    QTest::keyClick(input, Qt::Key_Return);
+    QVERIFY(output->toPlainText().contains(QStringLiteral("файл «lines.txt» не найден в VFS")));
     QVERIFY(window.isVisible());
 }
 

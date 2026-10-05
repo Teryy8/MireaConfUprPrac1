@@ -1,0 +1,3 @@
+cd /docs/projects/demo
+rm -rf /docs
+rm /docs/lines.txt

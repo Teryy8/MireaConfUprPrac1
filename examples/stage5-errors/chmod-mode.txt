@@ -1,0 +1,3 @@
+ls -l /docs/lines.txt
+chmod 888 /docs/lines.txt
+rm /docs/lines.txt

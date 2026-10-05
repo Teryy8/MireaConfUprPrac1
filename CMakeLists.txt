@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(ShellEmulator VERSION 0.4.0 LANGUAGES CXX)
+project(ShellEmulator VERSION 0.5.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -13,6 +13,7 @@ add_library(shell_core
     src/commandparser.cpp src/shell.cpp src/configuration.cpp src/startupscript.cpp
     src/csvparser.cpp src/vfs.cpp
     src/commandoptions.cpp src/shell_files.cpp src/shell_text.cpp
+    src/permissions.cpp src/shell_mutations.cpp
 )
 target_include_directories(shell_core PUBLIC src)
 target_link_libraries(shell_core PUBLIC Qt6::Core)
@@ -37,7 +38,7 @@ endforeach()
 
 if(BUILD_TESTING)
     find_package(Qt6 6.5 REQUIRED COMPONENTS Test)
-    foreach(test_name parser shell gui configuration startup vfs)
+    foreach(test_name parser shell mutations gui configuration startup vfs)
         add_executable(test_${test_name} tests/test_${test_name}.cpp)
         target_link_libraries(test_${test_name} PRIVATE shell_gui Qt6::Test)
         add_test(NAME ${test_name} COMMAND test_${test_name})
