@@ -4,7 +4,7 @@
 #include <QStringConverter>
 #include <QTextStream>
 
-ScriptResult runStartupScript(const QString &path, const Shell &shell, const CommandDisplay &display)
+ScriptResult runStartupScript(const QString &path, Shell &shell, const CommandDisplay &display)
 {
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {

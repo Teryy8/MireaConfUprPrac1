@@ -13,6 +13,7 @@ private slots:
     void firstError();
     void exitStopsScript();
     void missingFile();
+    void vfsInitInScript();
 };
 
 void StartupTest::successfulScript()
@@ -28,7 +29,8 @@ void StartupTest::successfulScript()
     environment.insert("HOME", "/home/test");
     QStringList inputs;
     QStringList outputs;
-    const auto result = runStartupScript(path, Shell(environment),
+    Shell shell(environment);
+    const auto result = runStartupScript(path, shell,
         [&](const QString &line, const CommandResult &command) {
             inputs.append(line);
             outputs.append(command.output);
@@ -60,7 +62,8 @@ void StartupTest::firstError()
     file.write("ls before\n\n" + badLine + "\nls after\n");
     file.close();
     QStringList inputs;
-    const auto result = runStartupScript(path, Shell{},
+    Shell shell;
+    const auto result = runStartupScript(path, shell,
         [&](const QString &line, const CommandResult &) { inputs.append(line); });
     QVERIFY(result.error);
     QVERIFY(!result.exitRequested);
@@ -80,7 +83,8 @@ void StartupTest::exitStopsScript()
     file.write("exit\nunknown\n");
     file.close();
     int displayed = 0;
-    const auto result = runStartupScript(path, Shell{},
+    Shell shell;
+    const auto result = runStartupScript(path, shell,
         [&](const QString &, const CommandResult &) { ++displayed; });
     QVERIFY(result.exitRequested);
     QVERIFY(!result.error);
@@ -92,11 +96,35 @@ void StartupTest::missingFile()
     QTemporaryDir directory;
     QVERIFY(directory.isValid());
     bool displayed = false;
-    const auto result = runStartupScript(directory.filePath("missing.txt"), Shell{},
+    Shell shell;
+    const auto result = runStartupScript(directory.filePath("missing.txt"), shell,
         [&](const QString &, const CommandResult &) { displayed = true; });
     QVERIFY(result.error);
     QVERIFY(!displayed);
     QVERIFY(result.message.contains(QStringLiteral("Ошибка открытия")));
+}
+
+void StartupTest::vfsInitInScript()
+{
+    QTemporaryDir directory;
+    QVERIFY(directory.isValid());
+    const QString vfsPath = directory.filePath(QStringLiteral("copy.csv"));
+    QVERIFY(QFile::copy(QStringLiteral("vfs/nested.csv"), vfsPath));
+    Shell shell;
+    QVERIFY(shell.loadVfs(vfsPath).isEmpty());
+    const QString path = directory.filePath(QStringLiteral("init.txt"));
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::WriteOnly));
+    file.write("vfs-init\nls /\nexit\nunknown\n");
+    file.close();
+    QStringList inputs;
+    const auto result = runStartupScript(path, shell,
+        [&](const QString &line, const CommandResult &) { inputs.append(line); });
+    QVERIFY(!result.error);
+    QVERIFY(result.exitRequested);
+    QCOMPARE(inputs.size(), 3);
+    QCOMPARE(shell.vfs().nodes().size(), 1);
+    QCOMPARE(QFile(vfsPath).size(), 0);
 }
 
 QTEST_GUILESS_MAIN(StartupTest)

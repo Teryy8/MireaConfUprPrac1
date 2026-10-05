@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     QCoreApplication::setApplicationName(QStringLiteral("Shell Emulator"));
-    QCoreApplication::setApplicationVersion(QStringLiteral("0.2.0"));
+    QCoreApplication::setApplicationVersion(QStringLiteral("0.3.0"));
     const ConfigurationResult parsed = parseConfiguration(QCoreApplication::arguments());
     if (!parsed.error.isEmpty()) {
         QTextStream(stderr) << "Ошибка параметров: " << parsed.error << Qt::endl;

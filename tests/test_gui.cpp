@@ -15,6 +15,8 @@ private slots:
     void exitClosesWindow();
     void startupErrorAllowsInput();
     void startupExitClosesWindow();
+    void vfsLoadAndReset();
+    void vfsLoadErrors();
 };
 
 void GuiTest::interactiveDialog()
@@ -112,6 +114,46 @@ void GuiTest::startupExitClosesWindow()
     window.show();
     window.runStartupScript();
     QVERIFY(!window.isVisible());
+}
+
+void GuiTest::vfsLoadAndReset()
+{
+    QTemporaryDir directory;
+    QVERIFY(directory.isValid());
+    Configuration configuration;
+    configuration.vfsPath = directory.filePath(QStringLiteral("nested.csv"));
+    QVERIFY(QFile::copy(QStringLiteral("vfs/nested.csv"), configuration.vfsPath));
+    MainWindow window(configuration);
+    window.show();
+    auto *output = window.findChild<QPlainTextEdit *>(QStringLiteral("transcript"));
+    auto *input = window.findChild<QLineEdit *>(QStringLiteral("commandInput"));
+    QVERIFY(output && input);
+    QVERIFY(output->toPlainText().contains(QStringLiteral("VFS загружена: nested")));
+    QVERIFY(output->toPlainText().contains(QStringLiteral("Каталогов: 4, файлов: 2")));
+    input->setText(QStringLiteral("vfs-init"));
+    QTest::keyClick(input, Qt::Key_Return);
+    QVERIFY(output->toPlainText().contains(QStringLiteral("Каталогов: 1, файлов: 0")));
+    QCOMPARE(QFile(configuration.vfsPath).size(), 0);
+}
+
+void GuiTest::vfsLoadErrors()
+{
+    QTemporaryDir directory;
+    QVERIFY(directory.isValid());
+    Configuration configuration;
+    configuration.vfsPath = directory.filePath(QStringLiteral("missing.csv"));
+    MainWindow missing(configuration);
+    auto *output = missing.findChild<QPlainTextEdit *>(QStringLiteral("transcript"));
+    QVERIFY(output);
+    QVERIFY(output->toPlainText().contains(QStringLiteral("Ошибка загрузки VFS")));
+    QFile file(configuration.vfsPath);
+    QVERIFY(file.open(QIODevice::WriteOnly));
+    file.write("bad csv\n");
+    file.close();
+    MainWindow invalid(configuration);
+    output = invalid.findChild<QPlainTextEdit *>(QStringLiteral("transcript"));
+    QVERIFY(output);
+    QVERIFY(output->toPlainText().contains(QStringLiteral("Неверный формат VFS")));
 }
 
 QTEST_MAIN(GuiTest)

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "commandparser.h"
+#include "vfs.h"
 
 struct CommandResult {
     QString output;
@@ -8,12 +9,14 @@ struct CommandResult {
     bool exitRequested = false;
 };
 
-/// Выполняет команды этапа 1, не обращаясь к файловой системе.
 class Shell {
 public:
     explicit Shell(QProcessEnvironment environment = QProcessEnvironment::systemEnvironment());
-    CommandResult execute(const QString &line) const;
+    CommandResult execute(const QString &line);
+    QString loadVfs(const QString &path);
+    const Vfs &vfs() const;
 
 private:
     CommandParser parser_;
+    Vfs vfs_;
 };

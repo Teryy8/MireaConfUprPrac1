@@ -10,10 +10,10 @@ if [[ "$(uname -s)" == Darwin ]]; then
 fi
 
 echo "Успешный скрипт завершит приложение командой exit."
-"$emulator" --vfs demo.csv --script "$project_dir/examples/startup.txt"
+"$emulator" --vfs "$project_dir/vfs/minimal.csv" --script "$project_dir/examples/startup.txt"
 
 echo "Скрипт остановится в строке 2. Проверьте ручной ввод, затем введите exit."
-"$emulator" --vfs demo.csv --script "$project_dir/examples/startup-error.txt"
+"$emulator" --vfs "$project_dir/vfs/minimal.csv" --script "$project_dir/examples/startup-error.txt"
 
 echo "Ошибка открытия скрипта. После проверки введите exit."
-"$emulator" --vfs demo.csv --script "$project_dir/examples/missing.txt"
+"$emulator" --vfs "$project_dir/vfs/minimal.csv" --script "$project_dir/examples/missing.txt"

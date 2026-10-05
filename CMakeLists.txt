@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(ShellEmulator VERSION 0.2.0 LANGUAGES CXX)
+project(ShellEmulator VERSION 0.3.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -9,7 +9,10 @@ set(CMAKE_AUTOMOC ON)
 find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets)
 include(CTest)
 
-add_library(shell_core src/commandparser.cpp src/shell.cpp src/configuration.cpp src/startupscript.cpp)
+add_library(shell_core
+    src/commandparser.cpp src/shell.cpp src/configuration.cpp src/startupscript.cpp
+    src/csvparser.cpp src/vfs.cpp
+)
 target_include_directories(shell_core PUBLIC src)
 target_link_libraries(shell_core PUBLIC Qt6::Core)
 
@@ -33,10 +36,13 @@ endforeach()
 
 if(BUILD_TESTING)
     find_package(Qt6 6.5 REQUIRED COMPONENTS Test)
-    foreach(test_name parser shell gui configuration startup)
+    foreach(test_name parser shell gui configuration startup vfs)
         add_executable(test_${test_name} tests/test_${test_name}.cpp)
         target_link_libraries(test_${test_name} PRIVATE shell_gui Qt6::Test)
         add_test(NAME ${test_name} COMMAND test_${test_name})
-        set_tests_properties(${test_name} PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+        set_tests_properties(${test_name} PROPERTIES
+            ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
+            WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+        )
     endforeach()
 endif()

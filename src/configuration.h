@@ -3,7 +3,7 @@
 #include <QStringList>
 
 struct Configuration {
-    QString vfsPath = QStringLiteral("VFS-17.csv");
+    QString vfsPath = QStringLiteral("vfs/VFS-17.csv");
     QString scriptPath;
 
     QString vfsName() const;

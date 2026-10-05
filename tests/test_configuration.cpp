@@ -17,7 +17,7 @@ void ConfigurationTest::defaults()
 {
     const auto result = parseConfiguration({"emulator"});
     QVERIFY(result.error.isEmpty());
-    QCOMPARE(result.configuration.vfsPath, QStringLiteral("VFS-17.csv"));
+    QCOMPARE(result.configuration.vfsPath, QStringLiteral("vfs/VFS-17.csv"));
     QVERIFY(result.configuration.scriptPath.isEmpty());
     QCOMPARE(result.configuration.vfsName(), QStringLiteral("VFS-17"));
     QVERIFY(result.configuration.debugText().contains(QStringLiteral("не задан")));
@@ -36,7 +36,7 @@ void ConfigurationTest::parameters()
     QCOMPARE(onlyVfs.configuration.vfsPath, QStringLiteral("other.csv"));
     QVERIFY(onlyVfs.configuration.scriptPath.isEmpty());
     const auto onlyScript = parseConfiguration({"emulator", "--script=commands.txt"});
-    QCOMPARE(onlyScript.configuration.vfsPath, QStringLiteral("VFS-17.csv"));
+    QCOMPARE(onlyScript.configuration.vfsPath, QStringLiteral("vfs/VFS-17.csv"));
     QCOMPARE(onlyScript.configuration.scriptPath, QStringLiteral("commands.txt"));
 }
 

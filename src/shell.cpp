@@ -54,7 +54,17 @@ Shell::Shell(QProcessEnvironment environment)
 {
 }
 
-CommandResult Shell::execute(const QString &line) const
+QString Shell::loadVfs(const QString &path)
+{
+    return vfs_.load(path);
+}
+
+const Vfs &Shell::vfs() const
+{
+    return vfs_;
+}
+
+CommandResult Shell::execute(const QString &line)
 {
     const ParseResult parsed = parser_.parse(line);
     if (!parsed.error.isEmpty()) {
@@ -66,6 +76,16 @@ CommandResult Shell::execute(const QString &line) const
 
     const QString command = parsed.words.front();
     const QStringList arguments = parsed.words.mid(1);
+    if (command == QStringLiteral("vfs-init")) {
+        if (!arguments.isEmpty()) {
+            return {QStringLiteral("Ошибка: неверные аргументы vfs-init. Использование: vfs-init."), true};
+        }
+        const QString error = vfs_.reset();
+        if (!error.isEmpty()) {
+            return {error, true};
+        }
+        return {QStringLiteral("VFS заменена на пустой корневой каталог. CSV-файл очищен.\n") + vfs_.summary()};
+    }
     if (command == QStringLiteral("exit")) {
         if (!arguments.isEmpty()) {
             return {QStringLiteral("Ошибка: неверные аргументы exit. Использование: exit."), true, false};

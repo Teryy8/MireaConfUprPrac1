@@ -1,0 +1,7 @@
+path,type,data
+/,dir,
+/docs,dir,
+/docs/projects,dir,
+/docs/projects/demo,dir,
+/docs/projects/demo/readme.txt,file,TmVzdGVkIFZGUwo=
+/bytes.bin,file,AP8Q

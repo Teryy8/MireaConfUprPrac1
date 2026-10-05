@@ -31,7 +31,7 @@ MainWindow::MainWindow(const Configuration &configuration, QWidget *parent)
     auto *layout = new QVBoxLayout(central);
     layout->setContentsMargins(16, 16, 16, 16);
     layout->setSpacing(12);
-    auto *heading = new QLabel(QStringLiteral("Вариант 17 · Этап 2 · Конфигурация"), central);
+    auto *heading = new QLabel(QStringLiteral("Вариант 17 · Этап 3 · VFS"), central);
     layout->addWidget(heading);
 
     transcript_->setObjectName(QStringLiteral("transcript"));
@@ -41,7 +41,7 @@ MainWindow::MainWindow(const Configuration &configuration, QWidget *parent)
     transcript_->setLineWrapMode(QPlainTextEdit::WidgetWidth);
     transcript_->appendPlainText(configuration_.debugText());
     transcript_->appendPlainText(QStringLiteral("Эмулятор оболочки. VFS: %1").arg(vfsName_));
-    transcript_->appendPlainText(QStringLiteral("Команды: ls, cd, exit. ls и cd — заглушки этапа 1."));
+    transcript_->appendPlainText(QStringLiteral("Команды: ls, cd, vfs-init, exit. ls и cd — заглушки."));
     transcript_->appendPlainText(QStringLiteral("Переменные ОС: $HOME, ${HOME}. Ввод команды — Enter."));
     layout->addWidget(transcript_, 1);
 
@@ -62,6 +62,14 @@ MainWindow::MainWindow(const Configuration &configuration, QWidget *parent)
     statusBar()->showMessage(QStringLiteral("Готов к вводу"));
     connect(input_, &QLineEdit::returnPressed, this, &MainWindow::submitCommand);
     connect(execute, &QPushButton::clicked, this, &MainWindow::submitCommand);
+    const QString error = shell_.loadVfs(configuration_.vfsPath);
+    const QString message = error.isEmpty()
+        ? QStringLiteral("VFS загружена: %1. ").arg(vfsName_) + shell_.vfs().summary() : error;
+    transcript_->appendPlainText(message);
+    QTextStream(stdout) << message << Qt::endl;
+    if (!error.isEmpty()) {
+        statusBar()->showMessage(QStringLiteral("Ошибка загрузки VFS. Доступен ручной ввод."));
+    }
     input_->setFocus();
 }
 

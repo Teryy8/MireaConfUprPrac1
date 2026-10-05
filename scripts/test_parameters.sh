@@ -2,6 +2,7 @@
 set -euo pipefail
 
 project_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$project_dir"
 "$project_dir/run.sh" --build-only
 build_dir="${BUILD_DIR:-$project_dir/build}"
 emulator="$build_dir/shell_emulator"
@@ -12,7 +13,7 @@ fi
 "$emulator" --help
 "$emulator" --version
 "$emulator" --script "$project_dir/examples/exit.txt"
-"$emulator" --vfs "my filesystem.csv" --script "$project_dir/examples/startup.txt"
+"$emulator" --vfs "$project_dir/vfs/files.csv" --script "$project_dir/examples/startup.txt"
 
 expect_error() {
     if "$emulator" "$@"; then

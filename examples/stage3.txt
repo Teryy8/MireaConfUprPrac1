@@ -1,0 +1,13 @@
+ls
+ls -a
+ls -l
+ls -al /docs
+ls -- "-file"
+cd
+cd "/docs/projects/demo"
+cd "$HOME"
+cd -- "-directory"
+vfs-init
+ls
+vfs-init extra
+ls not-executed

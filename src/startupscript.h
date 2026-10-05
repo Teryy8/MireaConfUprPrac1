@@ -13,4 +13,4 @@ struct ScriptResult {
 
 using CommandDisplay = std::function<void(const QString &, const CommandResult &)>;
 
-ScriptResult runStartupScript(const QString &path, const Shell &shell, const CommandDisplay &display);
+ScriptResult runStartupScript(const QString &path, Shell &shell, const CommandDisplay &display);
