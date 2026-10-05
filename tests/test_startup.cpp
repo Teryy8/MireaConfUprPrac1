@@ -23,13 +23,14 @@ void StartupTest::successfulScript()
     const QString path = directory.filePath(QStringLiteral("my script.txt"));
     QFile file(path);
     QVERIFY(file.open(QIODevice::WriteOnly));
-    file.write("\nls -al \"my folder\"\r\ncd \"$HOME\"\n");
+    file.write("\nls -al \"/my folder\"\r\ncd \"$HOME\"\n");
     file.close();
     QProcessEnvironment environment;
-    environment.insert("HOME", "/home/test");
+    environment.insert("HOME", "/docs");
     QStringList inputs;
     QStringList outputs;
     Shell shell(environment);
+    QVERIFY(shell.loadVfs(QStringLiteral("vfs/commands.csv")).isEmpty());
     const auto result = runStartupScript(path, shell,
         [&](const QString &line, const CommandResult &command) {
             inputs.append(line);
@@ -39,8 +40,9 @@ void StartupTest::successfulScript()
     QVERIFY(!result.exitRequested);
     QCOMPARE(result.lineNumber, 3);
     QCOMPARE(inputs.size(), 2);
-    QVERIFY(outputs[0].contains(QStringLiteral("my folder")));
-    QVERIFY(outputs[1].contains(QStringLiteral("/home/test")));
+    QVERIFY(outputs[0].contains(QStringLiteral("note.txt")));
+    QVERIFY(outputs[1].isEmpty());
+    QCOMPARE(shell.currentDirectory(), QStringLiteral("/docs"));
 }
 
 void StartupTest::firstError_data()
@@ -59,7 +61,7 @@ void StartupTest::firstError()
     const QString path = directory.filePath(QStringLiteral("error.txt"));
     QFile file(path);
     QVERIFY(file.open(QIODevice::WriteOnly));
-    file.write("ls before\n\n" + badLine + "\nls after\n");
+    file.write("ls /\n\n" + badLine + "\nls after\n");
     file.close();
     QStringList inputs;
     Shell shell;

@@ -1,0 +1,20 @@
+path,type,data
+/,dir,
+/docs,dir,
+/docs/projects,dir,
+/docs/projects/demo,dir,
+/docs/projects/demo/report.txt,file,cmVwb3J0Cg==
+/docs/lines.txt,file,YWxwaGEKYWxwaGEKYmV0YQpiZXRhCmJldGEKZ2FtbWEKYWxwaGEK
+/docs/case.txt,file,QQphCkIKYgpiCg==
+/docs/long.txt,file,MQoyCjMKNAo1CjYKNwo4CjkKMTAKMTEKMTIK
+/docs/no-newline.txt,file,Zmlyc3QKbGFzdA==
+/docs/empty.txt,file,
+/docs/blank.txt,file,Cgp4Cg==
+/docs/-input.txt,file,ZGFzaAo=
+/my folder,dir,
+/my folder/note.txt,file,aGVsbG8K
+/.hidden,file,c2VjcmV0Cg==
+/-directory,dir,
+/-file,file,ZGFzaAo=
+/bytes.bin,file,AP8Q
+/emptydir,dir,

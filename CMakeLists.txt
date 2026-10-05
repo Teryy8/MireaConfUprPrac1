@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(ShellEmulator VERSION 0.3.0 LANGUAGES CXX)
+project(ShellEmulator VERSION 0.4.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -12,6 +12,7 @@ include(CTest)
 add_library(shell_core
     src/commandparser.cpp src/shell.cpp src/configuration.cpp src/startupscript.cpp
     src/csvparser.cpp src/vfs.cpp
+    src/commandoptions.cpp src/shell_files.cpp src/shell_text.cpp
 )
 target_include_directories(shell_core PUBLIC src)
 target_link_libraries(shell_core PUBLIC Qt6::Core)

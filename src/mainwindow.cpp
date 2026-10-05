@@ -31,7 +31,7 @@ MainWindow::MainWindow(const Configuration &configuration, QWidget *parent)
     auto *layout = new QVBoxLayout(central);
     layout->setContentsMargins(16, 16, 16, 16);
     layout->setSpacing(12);
-    auto *heading = new QLabel(QStringLiteral("Вариант 17 · Этап 3 · VFS"), central);
+    auto *heading = new QLabel(QStringLiteral("Вариант 17 · Этап 4 · Команды"), central);
     layout->addWidget(heading);
 
     transcript_->setObjectName(QStringLiteral("transcript"));
@@ -41,16 +41,18 @@ MainWindow::MainWindow(const Configuration &configuration, QWidget *parent)
     transcript_->setLineWrapMode(QPlainTextEdit::WidgetWidth);
     transcript_->appendPlainText(configuration_.debugText());
     transcript_->appendPlainText(QStringLiteral("Эмулятор оболочки. VFS: %1").arg(vfsName_));
-    transcript_->appendPlainText(QStringLiteral("Команды: ls, cd, vfs-init, exit. ls и cd — заглушки."));
+    transcript_->appendPlainText(QStringLiteral("Команды: ls, cd, uniq, history, tail, vfs-init, exit."));
     transcript_->appendPlainText(QStringLiteral("Переменные ОС: $HOME, ${HOME}. Ввод команды — Enter."));
     layout->addWidget(transcript_, 1);
 
     auto *commandRow = new QHBoxLayout;
-    commandRow->addWidget(new QLabel(vfsName_ + QStringLiteral(":/$"), central));
+    prompt_ = new QLabel(vfsName_ + QStringLiteral(":/$"), central);
+    prompt_->setObjectName(QStringLiteral("prompt"));
+    commandRow->addWidget(prompt_);
     input_->setObjectName(QStringLiteral("commandInput"));
     input_->setAccessibleName(QStringLiteral("Команда эмулятора"));
     input_->setFont(transcript_->font());
-    input_->setPlaceholderText(QStringLiteral("Например: cd \"$HOME\""));
+    input_->setPlaceholderText(QStringLiteral("Например: ls /docs"));
     input_->setClearButtonEnabled(true);
     commandRow->addWidget(input_, 1);
     auto *execute = new QPushButton(QStringLiteral("Выполнить"), central);
@@ -92,14 +94,19 @@ void MainWindow::submitCommand()
 
 void MainWindow::displayCommand(const QString &line, const CommandResult &result)
 {
-    const QString prompt = vfsName_ + QStringLiteral(":/$ ") + line;
+    const QString prompt = QStringLiteral("%1:%2$ %3").arg(vfsName_, result.directory, line);
     transcript_->appendPlainText(prompt);
     QTextStream output(stdout);
     output << prompt << Qt::endl;
     if (!result.output.isEmpty()) {
         transcript_->appendPlainText(result.output);
-        output << result.output << Qt::endl;
+        output << result.output;
+        if (!result.output.endsWith(u'\n')) {
+            output << u'\n';
+        }
+        output.flush();
     }
+    prompt_->setText(QStringLiteral("%1:%2$").arg(vfsName_, shell_.currentDirectory()));
     statusBar()->showMessage(result.error ? QStringLiteral("Ошибка команды") : QStringLiteral("Готов к вводу"));
 }
 

@@ -1,0 +1,2 @@
+tail -n -1 /docs/lines.txt
+ls not-executed

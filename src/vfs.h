@@ -7,6 +7,7 @@
 struct VfsNode {
     bool directory = true;
     QByteArray data;
+    unsigned int permissions = 0755;
 };
 
 class Vfs {

@@ -1,6 +1,6 @@
 ls
-ls -al "my folder"
-cd "$HOME"
-ls "${HOME}/Documents"
-cd '$HOME'
+ls -al "/"
+cd /
+cd .
+ls "/"
 exit

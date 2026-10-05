@@ -1,0 +1,36 @@
+ls
+ls -a
+ls -l
+ls -al /docs
+ls /docs/lines.txt "/my folder/note.txt"
+ls -- -file
+cd /docs
+ls
+cd projects/demo
+ls
+cd ..
+cd -
+cd
+cd -- -directory
+cd /
+uniq /docs/lines.txt
+uniq -c /docs/lines.txt
+uniq -d /docs/lines.txt
+uniq -u /docs/lines.txt
+uniq -i /docs/case.txt
+uniq -cd /docs/lines.txt
+uniq -du /docs/lines.txt
+cd /docs
+uniq -- -input.txt
+cd /
+tail /docs/long.txt
+tail -n 2 /docs/long.txt
+tail -n2 /docs/long.txt
+tail -n 0 /docs/long.txt
+tail -n 99 /docs/no-newline.txt
+tail -n 1 /docs/case.txt /docs/no-newline.txt
+tail -- "/my folder/note.txt"
+history
+history 5
+history 0
+exit

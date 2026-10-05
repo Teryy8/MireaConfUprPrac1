@@ -66,6 +66,7 @@ QString readNode(const QStringList &fields, QMap<QString, VfsNode> &nodes)
         }
         node.directory = false;
         node.data = decoded.decoded;
+        node.permissions = 0644;
     } else {
         return QStringLiteral("неизвестный тип «%1»").arg(fields[1]);
     }

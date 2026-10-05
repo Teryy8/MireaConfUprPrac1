@@ -1,12 +1,9 @@
 ls
 ls -a
 ls -l
-ls -al /docs
-ls -- "-file"
-cd
-cd "/docs/projects/demo"
-cd "$HOME"
-cd -- "-directory"
+ls -al "/"
+cd /
+cd .
 vfs-init
 ls
 vfs-init extra

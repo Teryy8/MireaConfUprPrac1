@@ -1,4 +1,4 @@
-ls before-error
+ls /
 cd /one /two
 ls after-error
 exit

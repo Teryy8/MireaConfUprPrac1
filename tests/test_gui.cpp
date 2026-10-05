@@ -5,6 +5,7 @@
 #include <QPlainTextEdit>
 #include <QPushButton>
 #include <QTemporaryDir>
+#include <QLabel>
 #include <QtTest>
 
 class GuiTest : public QObject {
@@ -21,9 +22,11 @@ private slots:
 
 void GuiTest::interactiveDialog()
 {
-    MainWindow window;
+    Configuration configuration;
+    configuration.vfsPath = QStringLiteral("vfs/commands.csv");
+    MainWindow window(configuration);
     window.show();
-    QVERIFY(window.windowTitle().contains(QStringLiteral("VFS-17")));
+    QVERIFY(window.windowTitle().contains(QStringLiteral("commands")));
     auto *input = window.findChild<QLineEdit *>(QStringLiteral("commandInput"));
     auto *output = window.findChild<QPlainTextEdit *>(QStringLiteral("transcript"));
     auto *button = window.findChild<QPushButton *>(QStringLiteral("executeButton"));
@@ -33,12 +36,14 @@ void GuiTest::interactiveDialog()
     input->setText(QStringLiteral("ls"));
     QTest::keyClick(input, Qt::Key_Return);
     QVERIFY(input->text().isEmpty());
-    QVERIFY(output->toPlainText().contains(QStringLiteral("Заглушка: ls")));
+    QVERIFY(output->toPlainText().contains(QStringLiteral("bytes.bin\ndocs")));
 
-    input->setText(QStringLiteral("cd \"$HOME\""));
+    input->setText(QStringLiteral("cd /docs"));
     QTest::mouseClick(button, Qt::LeftButton);
-    QVERIFY(output->toPlainText().contains(QProcessEnvironment::systemEnvironment().value("HOME")));
-    QVERIFY(output->toPlainText().contains(QStringLiteral("Заглушка: cd")));
+    QVERIFY(output->toPlainText().contains(QStringLiteral("commands:/$ cd /docs")));
+    auto *prompt = window.findChild<QLabel *>(QStringLiteral("prompt"));
+    QVERIFY(prompt);
+    QCOMPARE(prompt->text(), QStringLiteral("commands:/docs$"));
 
     input->setText(QStringLiteral("unknown"));
     QTest::keyClick(input, Qt::Key_Return);
@@ -52,9 +57,15 @@ void GuiTest::interactiveDialog()
     QTest::keyClick(input, Qt::Key_Return);
     QVERIFY(output->toPlainText().contains(QStringLiteral("незакрытая кавычка")));
 
-    input->setText(QStringLiteral("ls -al \"my folder\""));
+    input->setText(QStringLiteral("ls -al \"/my folder\""));
     QTest::keyClick(input, Qt::Key_Return);
-    QVERIFY(output->toPlainText().contains(QStringLiteral("[\"-al\",\"my folder\"]")));
+    QVERIFY(output->toPlainText().contains(QStringLiteral("-rw-r--r-- 6 note.txt")));
+    input->setText(QStringLiteral("tail -n 1 lines.txt"));
+    QTest::keyClick(input, Qt::Key_Return);
+    QVERIFY(output->toPlainText().contains(QStringLiteral("commands:/docs$ tail -n 1 lines.txt\nalpha")));
+    input->setText(QStringLiteral("history 2"));
+    QTest::keyClick(input, Qt::Key_Return);
+    QVERIFY(output->toPlainText().contains(QStringLiteral("  tail -n 1 lines.txt")));
     QVERIFY(window.isVisible());
 }
 
@@ -77,11 +88,12 @@ void GuiTest::startupErrorAllowsInput()
     QTemporaryDir directory;
     QVERIFY(directory.isValid());
     Configuration configuration;
-    configuration.vfsPath = QStringLiteral("my filesystem.csv");
+    configuration.vfsPath = directory.filePath(QStringLiteral("my filesystem.csv"));
+    QVERIFY(QFile::copy(QStringLiteral("vfs/commands.csv"), configuration.vfsPath));
     configuration.scriptPath = directory.filePath(QStringLiteral("startup.txt"));
     QFile file(configuration.scriptPath);
     QVERIFY(file.open(QIODevice::WriteOnly));
-    file.write("ls before\nunknown\nls after\n");
+    file.write("ls /\nunknown\nls after\n");
     file.close();
     MainWindow window(configuration);
     window.show();
@@ -91,13 +103,13 @@ void GuiTest::startupErrorAllowsInput()
     QVERIFY(output && input);
     QVERIFY(window.windowTitle().contains(QStringLiteral("my filesystem")));
     QVERIFY(output->toPlainText().contains(configuration.debugText()));
-    QVERIFY(output->toPlainText().contains(QStringLiteral("my filesystem:/$ ls before")));
+    QVERIFY(output->toPlainText().contains(QStringLiteral("my filesystem:/$ ls /")));
     QVERIFY(output->toPlainText().contains(QStringLiteral("строке 2")));
     QVERIFY(!output->toPlainText().contains(QStringLiteral("ls after")));
     QVERIFY(window.isVisible());
-    input->setText(QStringLiteral("ls manual"));
+    input->setText(QStringLiteral("tail /docs/no-newline.txt"));
     QTest::keyClick(input, Qt::Key_Return);
-    QVERIFY(output->toPlainText().contains(QStringLiteral("[\"manual\"]")));
+    QVERIFY(output->toPlainText().contains(QStringLiteral("first\nlast")));
 }
 
 void GuiTest::startupExitClosesWindow()

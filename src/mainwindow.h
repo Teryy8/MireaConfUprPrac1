@@ -7,6 +7,7 @@
 
 class QLineEdit;
 class QPlainTextEdit;
+class QLabel;
 
 /// Графический REPL: ввод, выполнение, вывод и ожидание следующей команды.
 class MainWindow : public QMainWindow {
@@ -23,5 +24,6 @@ private:
     Shell shell_;
     QLineEdit *input_;
     QPlainTextEdit *transcript_;
+    QLabel *prompt_;
     QString vfsName_;
 };

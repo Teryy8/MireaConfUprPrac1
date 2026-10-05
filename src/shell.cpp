@@ -1,53 +1,7 @@
 #include "shell.h"
+#include "commandoptions.h"
 
-#include <QJsonArray>
-#include <QJsonDocument>
 #include <utility>
-
-namespace {
-QString argumentError(const QString &command)
-{
-    const QString usage = command == QStringLiteral("ls")
-        ? QStringLiteral("ls [-a] [-l] [--] [путь ...]")
-        : QStringLiteral("cd [--] [путь]");
-    return QStringLiteral("Ошибка: неверные аргументы %1. Использование: %2.").arg(command, usage);
-}
-
-bool validArguments(const QString &command, const QStringList &arguments)
-{
-    bool options = true;
-    int paths = 0;
-    for (const QString &argument : arguments) {
-        if (options && argument == QStringLiteral("--")) {
-            options = false;
-            continue;
-        }
-        if (options && argument.startsWith(u'-') && argument.size() > 1) {
-            if (command != QStringLiteral("ls")) {
-                return false;
-            }
-            for (const QChar flag : argument.mid(1)) {
-                if (flag != u'a' && flag != u'l') {
-                    return false;
-                }
-            }
-        } else {
-            if (argument.isEmpty()) {
-                return false;
-            }
-            ++paths;
-        }
-    }
-    return command == QStringLiteral("ls") || paths <= 1;
-}
-
-QString stubOutput(const QString &command, const QStringList &arguments)
-{
-    const QJsonDocument json(QJsonArray::fromStringList(arguments));
-    return QStringLiteral("Заглушка: %1\nАргументы: %2")
-        .arg(command, QString::fromUtf8(json.toJson(QJsonDocument::Compact)));
-}
-} // namespace
 
 Shell::Shell(QProcessEnvironment environment)
     : parser_(std::move(environment))
@@ -56,7 +10,12 @@ Shell::Shell(QProcessEnvironment environment)
 
 QString Shell::loadVfs(const QString &path)
 {
-    return vfs_.load(path);
+    const QString error = vfs_.load(path);
+    if (error.isEmpty()) {
+        directory_ = QStringLiteral("/");
+        previousDirectory_.clear();
+    }
+    return error;
 }
 
 const Vfs &Shell::vfs() const
@@ -64,39 +23,78 @@ const Vfs &Shell::vfs() const
     return vfs_;
 }
 
+QString Shell::currentDirectory() const
+{
+    return directory_;
+}
+
 CommandResult Shell::execute(const QString &line)
 {
+    const QString before = directory_;
+    if (!line.trimmed().isEmpty()) {
+        history_.append(line);
+    }
     const ParseResult parsed = parser_.parse(line);
+    CommandResult result;
     if (!parsed.error.isEmpty()) {
-        return {parsed.error, true, false};
+        result = {parsed.error, true};
+    } else if (!parsed.words.isEmpty()) {
+        result = executeWords(parsed.words);
     }
-    if (parsed.words.isEmpty()) {
-        return {};
-    }
+    result.directory = before;
+    return result;
+}
 
-    const QString command = parsed.words.front();
-    const QStringList arguments = parsed.words.mid(1);
+CommandResult Shell::executeWords(const QStringList &words)
+{
+    const QString command = words.front();
+    const QStringList arguments = words.mid(1);
     if (command == QStringLiteral("vfs-init")) {
         if (!arguments.isEmpty()) {
-            return {QStringLiteral("Ошибка: неверные аргументы vfs-init. Использование: vfs-init."), true};
+            return {usageError(command, command), true};
         }
         const QString error = vfs_.reset();
         if (!error.isEmpty()) {
             return {error, true};
         }
+        directory_ = QStringLiteral("/");
+        previousDirectory_.clear();
         return {QStringLiteral("VFS заменена на пустой корневой каталог. CSV-файл очищен.\n") + vfs_.summary()};
     }
     if (command == QStringLiteral("exit")) {
         if (!arguments.isEmpty()) {
-            return {QStringLiteral("Ошибка: неверные аргументы exit. Использование: exit."), true, false};
+            return {usageError(command, command), true};
         }
         return {QStringLiteral("Завершение работы эмулятора."), false, true};
     }
-    if (command == QStringLiteral("ls") || command == QStringLiteral("cd")) {
-        if (!validArguments(command, arguments)) {
-            return {argumentError(command), true, false};
-        }
-        return {stubOutput(command, arguments), false, false};
+    if (command == QStringLiteral("ls")) {
+        return listDirectory(arguments);
     }
-    return {QStringLiteral("Ошибка: неизвестная команда «%1».").arg(command), true, false};
+    if (command == QStringLiteral("cd")) {
+        return changeDirectory(arguments);
+    }
+    if (command == QStringLiteral("uniq")) {
+        return uniq(arguments);
+    }
+    if (command == QStringLiteral("tail")) {
+        return tail(arguments);
+    }
+    if (command == QStringLiteral("history")) {
+        return history(arguments);
+    }
+    return {QStringLiteral("Ошибка: неизвестная команда «%1».").arg(command), true};
+}
+
+CommandResult Shell::history(const QStringList &arguments) const
+{
+    qlonglong count = history_.size();
+    if (arguments.size() > 1 || (!arguments.isEmpty() && !parseCount(arguments.front(), count))) {
+        return {usageError(QStringLiteral("history"), QStringLiteral("history [N]")), true};
+    }
+    const qsizetype start = history_.size() - qMin<qlonglong>(count, history_.size());
+    QStringList lines;
+    for (qsizetype i = start; i < history_.size(); ++i) {
+        lines.append(QStringLiteral("%1  %2").arg(i + 1).arg(history_[i]));
+    }
+    return {lines.join(u'\n')};
 }

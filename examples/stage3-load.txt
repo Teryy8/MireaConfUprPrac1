@@ -1,11 +1,8 @@
 ls
 ls -a
 ls -l
-ls -al /docs
-ls -- "-file"
-ls "/docs/projects/demo/readme.txt"
-cd
-cd "/docs/projects/demo"
-cd "$HOME"
-cd -- "-directory"
+ls -al "/"
+cd /
+cd .
+cd ..
 exit
