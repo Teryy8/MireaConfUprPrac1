@@ -8,7 +8,6 @@ struct ParseResult {
     QString error;
 };
 
-/// Разбирает строку, раскрывая переменные из окружения процесса.
 class CommandParser {
 public:
     explicit CommandParser(QProcessEnvironment environment = QProcessEnvironment::systemEnvironment());
