@@ -1,0 +1,4 @@
+ls before-error
+cd /one /two
+ls after-error
+exit

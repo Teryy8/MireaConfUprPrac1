@@ -1,6 +1,7 @@
 #pragma once
 
 #include "shell.h"
+#include "configuration.h"
 
 #include <QMainWindow>
 
@@ -11,12 +12,16 @@ class QPlainTextEdit;
 class MainWindow : public QMainWindow {
 public:
     explicit MainWindow(QWidget *parent = nullptr);
+    explicit MainWindow(const Configuration &configuration, QWidget *parent = nullptr);
+    void runStartupScript();
 
 private:
     void submitCommand();
+    void displayCommand(const QString &line, const CommandResult &result);
 
+    Configuration configuration_;
     Shell shell_;
     QLineEdit *input_;
     QPlainTextEdit *transcript_;
-    const QString vfsName_ = QStringLiteral("VFS-17");
+    QString vfsName_;
 };

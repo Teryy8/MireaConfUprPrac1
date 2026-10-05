@@ -4,6 +4,15 @@ set -euo pipefail
 project_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 build_dir="${BUILD_DIR:-$project_dir/build}"
 
+mode="${1:-}"
+if [[ "$mode" == --test || "$mode" == --build-only ]]; then
+    shift
+    if [[ $# -ne 0 ]]; then
+        echo "После $mode не должно быть аргументов." >&2
+        exit 2
+    fi
+fi
+
 cmake_args=(-S "$project_dir" -B "$build_dir" -DCMAKE_BUILD_TYPE=Debug)
 if [[ -n "${QT_ROOT:-}" ]]; then
     cmake_args+=("-DCMAKE_PREFIX_PATH=$QT_ROOT")
@@ -25,14 +34,12 @@ else
 fi
 cmake --build "$build_dir" --parallel
 
-case "${1:-}" in
+case "$mode" in
     --test) exec ctest --test-dir "$build_dir" --output-on-failure ;;
     --build-only) exit 0 ;;
-    "") ;;
-    *) echo "Использование: ./run.sh [--test | --build-only]" >&2; exit 2 ;;
 esac
 
 if [[ "$(uname -s)" == Darwin ]]; then
-    exec "$build_dir/shell_emulator.app/Contents/MacOS/shell_emulator"
+    exec "$build_dir/shell_emulator.app/Contents/MacOS/shell_emulator" "$@"
 fi
-exec "$build_dir/shell_emulator"
+exec "$build_dir/shell_emulator" "$@"

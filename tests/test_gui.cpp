@@ -1,8 +1,10 @@
 #include "mainwindow.h"
 
 #include <QLineEdit>
+#include <QFile>
 #include <QPlainTextEdit>
 #include <QPushButton>
+#include <QTemporaryDir>
 #include <QtTest>
 
 class GuiTest : public QObject {
@@ -11,6 +13,8 @@ class GuiTest : public QObject {
 private slots:
     void interactiveDialog();
     void exitClosesWindow();
+    void startupErrorAllowsInput();
+    void startupExitClosesWindow();
 };
 
 void GuiTest::interactiveDialog()
@@ -63,6 +67,50 @@ void GuiTest::exitClosesWindow()
     QVERIFY(window.isVisible());
     input->setText(QStringLiteral("exit"));
     QTest::keyClick(input, Qt::Key_Return);
+    QVERIFY(!window.isVisible());
+}
+
+void GuiTest::startupErrorAllowsInput()
+{
+    QTemporaryDir directory;
+    QVERIFY(directory.isValid());
+    Configuration configuration;
+    configuration.vfsPath = QStringLiteral("my filesystem.csv");
+    configuration.scriptPath = directory.filePath(QStringLiteral("startup.txt"));
+    QFile file(configuration.scriptPath);
+    QVERIFY(file.open(QIODevice::WriteOnly));
+    file.write("ls before\nunknown\nls after\n");
+    file.close();
+    MainWindow window(configuration);
+    window.show();
+    window.runStartupScript();
+    auto *output = window.findChild<QPlainTextEdit *>(QStringLiteral("transcript"));
+    auto *input = window.findChild<QLineEdit *>(QStringLiteral("commandInput"));
+    QVERIFY(output && input);
+    QVERIFY(window.windowTitle().contains(QStringLiteral("my filesystem")));
+    QVERIFY(output->toPlainText().contains(configuration.debugText()));
+    QVERIFY(output->toPlainText().contains(QStringLiteral("my filesystem:/$ ls before")));
+    QVERIFY(output->toPlainText().contains(QStringLiteral("строке 2")));
+    QVERIFY(!output->toPlainText().contains(QStringLiteral("ls after")));
+    QVERIFY(window.isVisible());
+    input->setText(QStringLiteral("ls manual"));
+    QTest::keyClick(input, Qt::Key_Return);
+    QVERIFY(output->toPlainText().contains(QStringLiteral("[\"manual\"]")));
+}
+
+void GuiTest::startupExitClosesWindow()
+{
+    QTemporaryDir directory;
+    QVERIFY(directory.isValid());
+    Configuration configuration;
+    configuration.scriptPath = directory.filePath(QStringLiteral("exit.txt"));
+    QFile file(configuration.scriptPath);
+    QVERIFY(file.open(QIODevice::WriteOnly));
+    file.write("exit\n");
+    file.close();
+    MainWindow window(configuration);
+    window.show();
+    window.runStartupScript();
     QVERIFY(!window.isVisible());
 }
 
