@@ -1,3 +1,9 @@
+/*
+ * Сохраняет команду в историю, разбирает её и выбирает нужный обработчик.
+ * Здесь реализованы history, exit и vfs-init; остальные обработчики Shell
+ * разделены между файлами shell_files, shell_text и shell_mutations.
+ */
+
 #include "shell.h"
 #include "commandoptions.h"
 

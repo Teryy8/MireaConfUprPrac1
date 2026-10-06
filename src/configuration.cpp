@@ -1,3 +1,8 @@
+/*
+ * Разбирает параметры запуска через QCommandLineParser и проверяет пути.
+ * Также формирует имя VFS и текст настроек для вывода при запуске.
+ */
+
 #include "configuration.h"
 
 #include <QCommandLineParser>

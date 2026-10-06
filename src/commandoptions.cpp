@@ -1,3 +1,8 @@
+/*
+ * Разбирает допустимые флаги и разделитель --, проверяет неотрицательные числа.
+ * Формирует сообщения об ошибках аргументов с правильным синтаксисом команды.
+ */
+
 #include "commandoptions.h"
 
 FlagOptions parseFlags(const QStringList &arguments, const QString &allowed)

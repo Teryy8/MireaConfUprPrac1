@@ -1,3 +1,8 @@
+/*
+ * Объявляет парсер команд CommandParser и результат разбора ParseResult.
+ * Результат содержит список слов команды или сообщение об ошибке.
+ */
+
 #pragma once
 
 #include <QProcessEnvironment>
